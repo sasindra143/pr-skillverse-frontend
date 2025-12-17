@@ -1,0 +1,24 @@
+.admin-upload {
+  padding: 30px;
+  background: white;
+  max-width: 700px;
+  margin: auto;
+  border-radius: 14px;
+}
+
+.admin-upload input,
+.admin-upload textarea,
+.admin-upload select {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+}
+
+.admin-upload button {
+  background: #2563eb;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
