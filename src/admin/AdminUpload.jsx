@@ -11,11 +11,13 @@ import {
 import { db } from "../firebase";
 import "./AdminUpload.css";
 
+/* COURSE MAP */
 const courseIdMap = {
   "SAP S/4HANA Finance": "sap-s4hana-finance",
   "SAP FICO Workshop": "sap-fico-workshop",
 };
 
+/* YOUTUBE EMBED */
 function getEmbedUrl(url) {
   if (url.includes("youtu.be")) {
     return `https://www.youtube.com/embed/${url.split("/").pop()}`;
@@ -26,6 +28,7 @@ function getEmbedUrl(url) {
 
 export default function AdminUpload() {
   const [course, setCourse] = useState("");
+  const [batch, setBatch] = useState(""); // ✅ NEW
   const [module, setModule] = useState("");
   const [title, setTitle] = useState("");
   const [trainer, setTrainer] = useState("");
@@ -33,7 +36,7 @@ export default function AdminUpload() {
   const [videoUrl, setVideoUrl] = useState("");
   const [videos, setVideos] = useState([]);
 
-  /* 🔄 Live fetch all videos */
+  /* 🔄 LIVE FETCH */
   useEffect(() => {
     const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
     const unsub = onSnapshot(q, (snap) => {
@@ -47,15 +50,17 @@ export default function AdminUpload() {
     return () => unsub();
   }, []);
 
+  /* ⬆️ UPLOAD */
   async function handleUpload() {
-    if (!course || !module || !title || !videoUrl) {
-      alert("Fill all required fields");
+    if (!course || !batch || !module || !title || !videoUrl) {
+      alert("Please fill all required fields");
       return;
     }
 
     await addDoc(collection(db, "videos"), {
       courseId: courseIdMap[course],
       courseTitle: course,
+      batch, // ✅ STORED
       module,
       title,
       trainer,
@@ -66,6 +71,7 @@ export default function AdminUpload() {
 
     alert("Video uploaded successfully");
 
+    setBatch("");
     setModule("");
     setTitle("");
     setTrainer("");
@@ -73,13 +79,14 @@ export default function AdminUpload() {
     setVideoUrl("");
   }
 
+  /* 🗑 DELETE */
   async function handleDelete(id) {
-    if (window.confirm("Delete this video?")) {
+    if (window.confirm("Delete this video permanently?")) {
       await deleteDoc(doc(db, "videos", id));
     }
   }
 
-  /* 🔹 Separate lists */
+  /* 🔹 COURSE FILTERS */
   const financeVideos = videos.filter(
     (v) => v.courseId === "sap-s4hana-finance"
   );
@@ -90,7 +97,7 @@ export default function AdminUpload() {
 
   return (
     <div className="admin-page">
-      {/* 🔼 UPLOAD FORM */}
+      {/* UPLOAD CARD */}
       <div className="admin-upload-card">
         <h2>🎬 Admin Video Upload</h2>
 
@@ -102,6 +109,13 @@ export default function AdminUpload() {
             </option>
           ))}
         </select>
+
+        {/* ✅ BATCH */}
+        <input
+          placeholder="Batch Name (Ex: Jan 2025)"
+          value={batch}
+          onChange={(e) => setBatch(e.target.value)}
+        />
 
         <input
           placeholder="Module Name"
@@ -136,9 +150,9 @@ export default function AdminUpload() {
         <button onClick={handleUpload}>Upload Video</button>
       </div>
 
-      {/* 📋 VIDEO LISTS */}
+      {/* LISTS */}
       <div className="video-lists-container">
-        {/* SAP FINANCE */}
+        {/* FINANCE */}
         <div className="admin-video-list">
           <h3>📘 SAP S/4HANA Finance</h3>
 
@@ -148,7 +162,9 @@ export default function AdminUpload() {
             <div key={v.id} className="video-row">
               <div>
                 <strong>{v.title}</strong>
-                <p>{v.module}</p>
+                <p>
+                  {v.batch} • {v.module}
+                </p>
                 <small>{v.createdAt?.toDate().toLocaleString()}</small>
               </div>
               <button onClick={() => handleDelete(v.id)}>Delete</button>
@@ -156,7 +172,7 @@ export default function AdminUpload() {
           ))}
         </div>
 
-        {/* SAP FICO */}
+        {/* FICO */}
         <div className="admin-video-list">
           <h3>📕 SAP FICO Workshop</h3>
 
@@ -166,7 +182,9 @@ export default function AdminUpload() {
             <div key={v.id} className="video-row">
               <div>
                 <strong>{v.title}</strong>
-                <p>{v.module}</p>
+                <p>
+                  {v.batch} • {v.module}
+                </p>
                 <small>{v.createdAt?.toDate().toLocaleString()}</small>
               </div>
               <button onClick={() => handleDelete(v.id)}>Delete</button>

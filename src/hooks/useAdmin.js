@@ -1,21 +1,24 @@
-import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
+import { auth } from "../firebase";
 
 export function useAdmin() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const user = getAuth().currentUser;
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
 
-    user.getIdTokenResult().then(token => {
-      setIsAdmin(!!token.claims.admin);
+      const token = await user.getIdTokenResult();
+      setIsAdmin(!!token.claims.admin); // 🔥 ONLY THIS MATTERS
       setLoading(false);
     });
+
+    return () => unsubscribe();
   }, []);
 
   return { isAdmin, loading };
