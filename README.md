@@ -7,8 +7,7 @@ A full-stack Learning Management System (LMS) built with React + Firebase, desig
 Frontend Repo:
 👉 https://github.com/sasindra143/pr-skillverse-frontend
 
-Local URL:
-
+Local URL:   pr-skillverse.netlify.app
 
 Admin Panel:
 https://pr-skillverse.netlify.app/admin-login
@@ -27,6 +26,83 @@ Courses → Batches → Modules → Lessons → Videos
 Paid batch access
 
 Admin-controlled content lifecycle
+
+## Technologies 
+🖥️ Frontend Technologies
+
+React.js (Vite) – Component-based UI development
+
+JavaScript (ES6+) – Core frontend logic
+
+HTML5 – Semantic page structure
+
+CSS3 – Styling, Flexbox, responsive layouts
+
+React Router DOM – Client-side routing
+
+Context API / Hooks – State & lifecycle management
+
+YouTube IFrame Embed API – Video playback integration
+
+Responsive Web Design – Mobile & desktop support
+
+⚙️ Backend Technologies
+
+Firebase – Backend as a Service (BaaS)
+
+Firebase Authentication – User login & role-based access
+
+Firebase Admin SDK – Secure admin operations
+
+REST-style Architecture – Structured data access
+
+Node.js (for admin scripts / cloud logic) – Server-side execution
+
+Role-Based Access Control (RBAC) – Admin / Student permissions
+
+🗄️ Database Technologies
+
+Firebase Firestore (NoSQL Database)
+
+Real-time data synchronization
+
+Structured collections (courses, modules, lessons, users)
+
+Indexed queries & filters
+
+Secure access using Firestore Rules
+
+🔐 Security & Access Control
+
+Firestore Security Rules
+
+Protected Routes (Frontend)
+
+Batch-wise Content Access
+
+Admin-only Upload & Delete Permissions
+
+☁️ Hosting & Deployment
+
+Netlify – Frontend hosting
+
+Firebase Hosting (optional)
+
+GitHub – Version control & collaboration
+
+Vite Build System – Optimized production builds
+
+🛠️ Development Tools
+
+VS Code – Code editor
+
+Git & GitHub – Source control
+
+Chrome DevTools – Debugging & performance
+
+Postman (optional) – API testing
+
+ESLint / Prettier – Code quality (optional)
 
 📁 COMPLETE FOLDER STRUCTURE (REAL WORLD)
 PR-Skillverse/
