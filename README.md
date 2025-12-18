@@ -7,7 +7,8 @@ A full-stack Learning Management System (LMS) built with React + Firebase, desig
 Frontend Repo:
 👉 https://github.com/sasindra143/pr-skillverse-frontend
 
-Local URL:   pr-skillverse.netlify.app
+Local URL:  
+https://pr-skillverse.netlify.app
 
 Admin Panel:
 https://pr-skillverse.netlify.app/admin-login
