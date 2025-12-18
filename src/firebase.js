@@ -8,6 +8,7 @@ import { getFirestore } from "firebase/firestore";
 const firebaseConfig = {
   apiKey: "AIzaSyCfZy1vOMu7rplp-bVZbcQIU8JnzlSIWgY",
   authDomain: "pr-skillverse.firebaseapp.com",
+  databaseURL: "https://pr-skillverse-default-rtdb.firebaseio.com",
   projectId: "pr-skillverse",
   storageBucket: "pr-skillverse.firebasestorage.app",
   messagingSenderId: "908984127628",
