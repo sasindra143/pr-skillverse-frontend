@@ -4,7 +4,8 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 
 import VideoPlayer from "../components/VideoPlayer";
-import CourseSidebar from "../components/CourseSidebar";
+import { CourseSidebar } from "../components/CourseSidebar";
+
 import "./VideoPage.css";
 export default function VideoPage() {
   const { courseId } = useParams();
