@@ -5,8 +5,7 @@ import { db } from "../firebase";
 
 import VideoPlayer from "../components/VideoPlayer";
 import CourseSidebar from "../components/CourseSidebar";
-import "../styles/videoPage.css"
-
+import "./VideoPage.css";
 export default function VideoPage() {
   const { courseId } = useParams();
   const [videos, setVideos] = useState([]);
