@@ -33,7 +33,7 @@ export default function VideoPlayer({ video }) {
             {video.trainer || "Expert Trainer"}
           </span>
           <span className="tag">
-            {video.category || "Core Java"}
+            {video.category || "SAP"}
           </span>
         </div>
       </div>
