@@ -1,20 +1,15 @@
-import "./CourseSidebar.css";
-function CourseSidebar({ videos, onSelect, activeId }) {
+export default function CourseSidebar({ videos, activeId, onSelect }) {
   return (
-    <div className="sidebar">
-      <h3>Course Content</h3>
-
-      {videos.map((v) => (
+    <div className="course-sidebar">
+      {videos.map(video => (
         <div
-          key={v.id}
-          className={`lesson ${activeId === v.id ? "active" : ""}`}
-          onClick={() => onSelect(v)}
+          key={video.id}
+          className={`video-item ${activeId === video.id ? "active" : ""}`}
+          onClick={() => onSelect(video)}
         >
-          ▶ {v.title}
+          {video.title}
         </div>
       ))}
     </div>
   );
 }
-export default CourseSidebar;
-
