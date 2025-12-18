@@ -1,28 +1,27 @@
-import { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { db } from "../firebase";
-import "../styles/adminUpload.css";
-import AdminVideoList from "./AdminVideoList";
+import "./AdminUpload.css";
 
-/* ===============================
-   COURSE ID MAP
-================================ */
 const courseIdMap = {
   "SAP S/4HANA Finance": "sap-s4hana-finance",
   "SAP FICO Workshop": "sap-fico-workshop",
 };
 
-/* ===============================
-   YOUTUBE EMBED HELPER
-================================ */
 function getEmbedUrl(url) {
-  if (!url) return "";
-
-  const id = url.includes("youtu.be")
-    ? url.split("/").pop()
-    : new URLSearchParams(url.split("?")[1]).get("v");
-
-  return `https://www.youtube.com/embed/${id}`;
+  if (url.includes("youtu.be")) {
+    return `https://www.youtube.com/embed/${url.split("/").pop()}`;
+  }
+  const match = url.match(/[?&]v=([^&]+)/);
+  return match ? `https://www.youtube.com/embed/${match[1]}` : url;
 }
 
 export default function AdminUpload() {
@@ -30,15 +29,27 @@ export default function AdminUpload() {
   const [module, setModule] = useState("");
   const [title, setTitle] = useState("");
   const [trainer, setTrainer] = useState("");
-  const [desc, setDesc] = useState("");
-  const [url, setUrl] = useState("");
+  const [description, setDescription] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videos, setVideos] = useState([]);
 
-  /* ===============================
-     HANDLE UPLOAD
-  =============================== */
-  const handleUpload = async () => {
-    if (!course || !module || !title || !trainer || !url) {
-      alert("⚠️ Please fill all required fields");
+  /* 🔄 Live fetch all videos */
+  useEffect(() => {
+    const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
+    const unsub = onSnapshot(q, (snap) => {
+      setVideos(
+        snap.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }))
+      );
+    });
+    return () => unsub();
+  }, []);
+
+  async function handleUpload() {
+    if (!course || !module || !title || !videoUrl) {
+      alert("Fill all required fields");
       return;
     }
 
@@ -48,31 +59,41 @@ export default function AdminUpload() {
       module,
       title,
       trainer,
-      description: desc,
-      videoUrl: getEmbedUrl(url),
-      duration: Math.floor(Math.random() * 20) + 5, // mock duration
+      description,
+      videoUrl: getEmbedUrl(videoUrl),
       createdAt: new Date(),
     });
 
-    alert("✅ Video added successfully");
+    alert("Video uploaded successfully");
 
-    // reset form
     setModule("");
     setTitle("");
     setTrainer("");
-    setDesc("");
-    setUrl("");
-  };
+    setDescription("");
+    setVideoUrl("");
+  }
 
-  /* ===============================
-     UI
-  =============================== */
+  async function handleDelete(id) {
+    if (window.confirm("Delete this video?")) {
+      await deleteDoc(doc(db, "videos", id));
+    }
+  }
+
+  /* 🔹 Separate lists */
+  const financeVideos = videos.filter(
+    (v) => v.courseId === "sap-s4hana-finance"
+  );
+
+  const ficoVideos = videos.filter(
+    (v) => v.courseId === "sap-fico-workshop"
+  );
+
   return (
-    <div className="admin-upload">
-      <h2>Admin Video Upload</h2>
+    <div className="admin-page">
+      {/* 🔼 UPLOAD FORM */}
+      <div className="admin-upload-card">
+        <h2>🎬 Admin Video Upload</h2>
 
-      {/* ================= UPLOAD FORM ================= */}
-      <div className="admin-form">
         <select value={course} onChange={(e) => setCourse(e.target.value)}>
           <option value="">Select Course</option>
           {Object.keys(courseIdMap).map((c) => (
@@ -101,22 +122,58 @@ export default function AdminUpload() {
         />
 
         <textarea
-          placeholder="Description (2 lines)"
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
+          placeholder="Lesson Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         />
 
         <input
-          placeholder="YouTube Link"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          placeholder="YouTube URL"
+          value={videoUrl}
+          onChange={(e) => setVideoUrl(e.target.value)}
         />
 
         <button onClick={handleUpload}>Upload Video</button>
       </div>
 
-      {/* ================= VIDEO LIST ================= */}
-      <AdminVideoList />
+      {/* 📋 VIDEO LISTS */}
+      <div className="video-lists-container">
+        {/* SAP FINANCE */}
+        <div className="admin-video-list">
+          <h3>📘 SAP S/4HANA Finance</h3>
+
+          {financeVideos.length === 0 && <p>No videos uploaded</p>}
+
+          {financeVideos.map((v) => (
+            <div key={v.id} className="video-row">
+              <div>
+                <strong>{v.title}</strong>
+                <p>{v.module}</p>
+                <small>{v.createdAt?.toDate().toLocaleString()}</small>
+              </div>
+              <button onClick={() => handleDelete(v.id)}>Delete</button>
+            </div>
+          ))}
+        </div>
+
+        {/* SAP FICO */}
+        <div className="admin-video-list">
+          <h3>📕 SAP FICO Workshop</h3>
+
+          {ficoVideos.length === 0 && <p>No videos uploaded</p>}
+
+          {ficoVideos.map((v) => (
+            <div key={v.id} className="video-row">
+              <div>
+                <strong>{v.title}</strong>
+                <p>{v.module}</p>
+                <small>{v.createdAt?.toDate().toLocaleString()}</small>
+              </div>
+              <button onClick={() => handleDelete(v.id)}>Delete</button>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

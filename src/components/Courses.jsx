@@ -1,10 +1,7 @@
-import { useNavigate } from "react-router-dom";
 import "../styles/Courses.css";
 import "animate.css";
 
 function Courses() {
-  const navigate = useNavigate();
-
   return (
     <section className="courses" id="courses">
       <div className="courses-container">
@@ -39,31 +36,25 @@ function Courses() {
               <div className="course-features">
                 <h4>Features:</h4>
                 <ul>
-                  <li>In-depth Financial & Management Accounting</li>
+                  <li>In-depth Financial & Management Accounting concepts</li>
                   <li>Real-time project simulations</li>
                   <li>Resume & interview preparation</li>
-                  <li>Recorded sessions access</li>
-                  <li>Reference materials</li>
+                  <li>Access to recorded sessions</li>
+                  <li>Reference materials provided</li>
                 </ul>
               </div>
 
               <div className="course-ideal">
                 <h4>Ideal For:</h4>
                 <p>
-                  Graduates, MBA students, finance & non-finance professionals,
-                  and freshers.
+                  Graduates, finance & non-finance professionals, MBA students,
+                  and freshers from accounting or non-accounting backgrounds.
                 </p>
               </div>
 
-              {/* ✅ NAVIGATE TO RECORDINGS */}
-              <button
-                className="btn btn-primary"
-                onClick={() =>
-                  navigate("/recordings/sap-s4hana-finance")
-                }
-              >
-                Get Started →
-              </button>
+              <a href="#contact" className="btn btn-primary">
+                Enroll Now
+              </a>
             </div>
           </div>
 
@@ -86,29 +77,23 @@ function Courses() {
                 <ul>
                   <li>Practice-oriented SAP FICO training</li>
                   <li>Real-time business scenarios</li>
-                  <li>Hands-on exercises</li>
-                  <li>Recorded sessions</li>
-                  <li>Reference materials</li>
+                  <li>Hands-on exercises & case studies</li>
+                  <li>Access to recorded sessions</li>
+                  <li>Reference materials provided</li>
                 </ul>
               </div>
 
               <div className="course-ideal">
                 <h4>Ideal For:</h4>
                 <p>
-                  SAP FICO interview aspirants and professionals looking to
-                  upskill quickly.
+                  Candidates preparing for SAP FICO interviews and professionals
+                  looking to upskill quickly in SAP FICO.
                 </p>
               </div>
 
-              {/* ✅ NAVIGATE TO RECORDINGS */}
-              <button
-                className="btn btn-primary"
-                onClick={() =>
-                  navigate("/recordings/sap-fico-workshop")
-                }
-              >
-                Get Started →
-              </button>
+              <a href="#contact" className="btn btn-primary">
+                Enroll Now
+              </a>
             </div>
           </div>
 

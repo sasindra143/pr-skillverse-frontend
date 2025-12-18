@@ -27,6 +27,7 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
   margin-bottom: 3rem;
+  
 }
 
 /* COURSE CARD */
@@ -39,6 +40,8 @@
   transition: transform 0.3s ease;
   display: flex;
   flex-direction: column;
+  color: #2563eb;
+
 }
 
 .course-card:hover {
@@ -70,7 +73,7 @@
   top: 1rem;
   right: 1rem;
   background: #2563eb;
-  color: #fff;
+  color:black;
   padding: 0.5rem 1rem;
   border-radius: 2rem;
   font-weight: 600;
@@ -87,7 +90,7 @@
 
 .course-content h3 {
   font-size: 1.8rem;
-  color: #fff;
+  color: black;
   margin-bottom: 1rem;
 }
 
@@ -99,7 +102,7 @@
 
 .course-features h4,
 .course-ideal h4 {
-  color: #fff;
+  color: black;
   margin-bottom: 1rem;
 }
 
@@ -109,7 +112,7 @@
 }
 
 .course-features li {
-  color: rgba(255, 255, 255, 0.8);
+  color: black;
   margin-bottom: 0.8rem;
   padding-left: 1.4rem;
   position: relative;
@@ -123,7 +126,7 @@
 }
 
 .course-ideal p {
-  color: rgba(255, 255, 255, 0.8);
+  color: black;
   line-height: 1.6;
 }
 
