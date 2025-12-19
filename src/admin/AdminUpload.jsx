@@ -7,17 +7,46 @@ import {
   onSnapshot,
   orderBy,
   query,
+  where,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import "./AdminUpload.css";
 
-/* COURSE MAP */
-const courseIdMap = {
-  "SAP S/4HANA Finance": "sap-s4hana-finance",
-  "SAP FICO Workshop": "sap-fico-workshop",
+/* ================= COURSES & MODULES ================= */
+
+const courses = {
+  "SAP S/4HANA Finance": {
+    id: "sap-s4hana-finance",
+    modules: [
+      "S/4HANA Finance Basics",
+      "Enterprise Structure",
+      "Global Parameters",
+      "GL Accounting",
+      "Accounts Payable",
+      "APP & DMEE",
+      "Accounts Receivable",
+      "Dunning",
+      "EBS",
+      "Asset Accounting",
+      "Other Topics",
+    ],
+  },
+  "SAP FICO Workshop": {
+    id: "sap-fico-workshop",
+    modules: [
+      "FICO Basics",
+      "GL Accounting",
+      "Accounts Payable",
+      "Accounts Receivable",
+      "Asset Accounting",
+      "Other Topics",
+    ],
+  },
 };
 
-/* YOUTUBE EMBED */
+/* ================= YOUTUBE ================= */
+
 function getEmbedUrl(url) {
   if (url.includes("youtu.be")) {
     return `https://www.youtube.com/embed/${url.split("/").pop()}`;
@@ -26,102 +55,171 @@ function getEmbedUrl(url) {
   return match ? `https://www.youtube.com/embed/${match[1]}` : url;
 }
 
+/* ================= COMPONENT ================= */
+
 export default function AdminUpload() {
-  const [course, setCourse] = useState("");
-  const [batch, setBatch] = useState(""); // ✅ NEW
+  const [course, setCourse] = useState("SAP S/4HANA Finance");
+
+  const [batch, setBatch] = useState("");
   const [module, setModule] = useState("");
   const [title, setTitle] = useState("");
-  const [trainer, setTrainer] = useState("");
-  const [description, setDescription] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
-  const [videos, setVideos] = useState([]);
 
-  /* 🔄 LIVE FETCH */
+  /* TRAINER */
+  const [trainerType, setTrainerType] = useState("Ram");
+  const [customTrainer, setCustomTrainer] = useState("");
+
+  const [groupedModules, setGroupedModules] = useState({});
+  const [activeModule, setActiveModule] = useState("");
+
+  /* ================= SAFE FETCH ================= */
+
   useEffect(() => {
-    const q = query(collection(db, "videos"), orderBy("createdAt", "desc"));
-    const unsub = onSnapshot(q, (snap) => {
-      setVideos(
-        snap.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        }))
-      );
-    });
-    return () => unsub();
-  }, []);
+    let unsubscribe = () => {};
 
-  /* ⬆️ UPLOAD */
+    const orderedQuery = query(
+      collection(db, "videos"),
+      where("courseId", "==", courses[course].id),
+      orderBy("createdAt", "asc")
+    );
+
+    const fallbackQuery = query(
+      collection(db, "videos"),
+      where("courseId", "==", courses[course].id)
+    );
+
+    const subscribe = (q, allowFallback = false) => {
+      unsubscribe = onSnapshot(
+        q,
+        (snap) => {
+          const grouped = {};
+          snap.docs.forEach((d) => {
+            const data = d.data();
+            if (!grouped[data.module]) grouped[data.module] = [];
+            grouped[data.module].push({ id: d.id, ...data });
+          });
+
+          setGroupedModules(grouped);
+          setActiveModule((prev) =>
+            prev && grouped[prev] ? prev : Object.keys(grouped)[0] || ""
+          );
+        },
+        (error) => {
+          if (error.code === "failed-precondition" && !allowFallback) {
+            unsubscribe();
+            subscribe(fallbackQuery, true);
+          }
+        }
+      );
+    };
+
+    subscribe(orderedQuery);
+    return () => unsubscribe();
+  }, [course]);
+
+  /* ================= UPLOAD ================= */
+
   async function handleUpload() {
-    if (!course || !batch || !module || !title || !videoUrl) {
-      alert("Please fill all required fields");
-      return;
-    }
+    if (!batch || !module || !title || !videoUrl) return;
+
+    const trainer =
+      trainerType === "Ram" ? "Ram" : customTrainer.trim();
+    if (!trainer) return;
 
     await addDoc(collection(db, "videos"), {
-      courseId: courseIdMap[course],
+      courseId: courses[course].id,
       courseTitle: course,
-      batch, // ✅ STORED
+      batch,
       module,
       title,
       trainer,
-      description,
       videoUrl: getEmbedUrl(videoUrl),
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
     });
 
-    alert("Video uploaded successfully");
-
+    /* ✅ RESET ALL INPUTS AFTER UPLOAD */
     setBatch("");
     setModule("");
     setTitle("");
-    setTrainer("");
-    setDescription("");
     setVideoUrl("");
+    setTrainerType("Ram");
+    setCustomTrainer("");
+
+    /* Keep module highlighted in left list */
+    setActiveModule(module);
   }
 
-  /* 🗑 DELETE */
+  /* ================= DELETE ================= */
+
   async function handleDelete(id) {
     if (window.confirm("Delete this video permanently?")) {
       await deleteDoc(doc(db, "videos", id));
     }
   }
 
-  /* 🔹 COURSE FILTERS */
-  const financeVideos = videos.filter(
-    (v) => v.courseId === "sap-s4hana-finance"
-  );
-
-  const ficoVideos = videos.filter(
-    (v) => v.courseId === "sap-fico-workshop"
-  );
+  /* ================= UI ================= */
 
   return (
-    <div className="admin-page">
-      {/* UPLOAD CARD */}
-      <div className="admin-upload-card">
-        <h2>🎬 Admin Video Upload</h2>
-
+    <div className="admin-layout">
+      {/* COURSE SELECTOR */}
+      <div className="course-selector">
         <select value={course} onChange={(e) => setCourse(e.target.value)}>
-          <option value="">Select Course</option>
-          {Object.keys(courseIdMap).map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
+          {Object.keys(courses).map((c) => (
+            <option key={c}>{c}</option>
           ))}
         </select>
+      </div>
 
-        {/* ✅ BATCH */}
+      {/* MODULES */}
+      <div className="admin-modules">
+        <h3>{course}</h3>
+        {Object.keys(groupedModules).map((m, i) => (
+          <div
+            key={m}
+            className={`admin-module-card ${
+              activeModule === m ? "active" : ""
+            }`}
+            onClick={() => setActiveModule(m)}
+          >
+            <strong>Module {i + 1}</strong>
+            <p>{m}</p>
+            <span>{groupedModules[m].length} lessons</span>
+          </div>
+        ))}
+      </div>
+
+      {/* VIDEOS */}
+      <div className="admin-videos">
+        <h3>{activeModule || "Select Module"}</h3>
+        {groupedModules[activeModule]?.map((v) => (
+          <div key={v.id} className="admin-video-row">
+            <div>
+              <strong>{v.title}</strong>
+              <p>
+                {v.batch} • Trainer: {v.trainer}
+              </p>
+            </div>
+            <button onClick={() => handleDelete(v.id)}>Delete</button>
+          </div>
+        ))}
+      </div>
+
+      {/* UPLOAD */}
+      <div className="admin-upload">
+        <h3>Upload Video</h3>
+
         <input
-          placeholder="Batch Name (Ex: Jan 2025)"
+          placeholder="Batch (Jan 2025)"
           value={batch}
           onChange={(e) => setBatch(e.target.value)}
         />
 
-        <input
-          placeholder="Module Name"
-          value={module}
-          onChange={(e) => setModule(e.target.value)}
-        />
+        <select value={module} onChange={(e) => setModule(e.target.value)}>
+          <option value="">Select Module</option>
+          {courses[course].modules.map((m) => (
+            <option key={m}>{m}</option>
+          ))}
+        </select>
 
         <input
           placeholder="Lesson Title"
@@ -129,17 +227,21 @@ export default function AdminUpload() {
           onChange={(e) => setTitle(e.target.value)}
         />
 
-        <input
-          placeholder="Trainer Name"
-          value={trainer}
-          onChange={(e) => setTrainer(e.target.value)}
-        />
+        <select
+          value={trainerType}
+          onChange={(e) => setTrainerType(e.target.value)}
+        >
+          <option value="Ram">RAM</option>
+          <option value="Others">Others</option>
+        </select>
 
-        <textarea
-          placeholder="Lesson Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+        {trainerType === "Others" && (
+          <input
+            placeholder="Enter Trainer Name"
+            value={customTrainer}
+            onChange={(e) => setCustomTrainer(e.target.value)}
+          />
+        )}
 
         <input
           placeholder="YouTube URL"
@@ -148,49 +250,6 @@ export default function AdminUpload() {
         />
 
         <button onClick={handleUpload}>Upload Video</button>
-      </div>
-
-      {/* LISTS */}
-      <div className="video-lists-container">
-        {/* FINANCE */}
-        <div className="admin-video-list">
-          <h3>📘 SAP S/4HANA Finance</h3>
-
-          {financeVideos.length === 0 && <p>No videos uploaded</p>}
-
-          {financeVideos.map((v) => (
-            <div key={v.id} className="video-row">
-              <div>
-                <strong>{v.title}</strong>
-                <p>
-                  {v.batch} • {v.module}
-                </p>
-                <small>{v.createdAt?.toDate().toLocaleString()}</small>
-              </div>
-              <button onClick={() => handleDelete(v.id)}>Delete</button>
-            </div>
-          ))}
-        </div>
-
-        {/* FICO */}
-        <div className="admin-video-list">
-          <h3>📕 SAP FICO Workshop</h3>
-
-          {ficoVideos.length === 0 && <p>No videos uploaded</p>}
-
-          {ficoVideos.map((v) => (
-            <div key={v.id} className="video-row">
-              <div>
-                <strong>{v.title}</strong>
-                <p>
-                  {v.batch} • {v.module}
-                </p>
-                <small>{v.createdAt?.toDate().toLocaleString()}</small>
-              </div>
-              <button onClick={() => handleDelete(v.id)}>Delete</button>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
