@@ -1,23 +1,57 @@
+/* ================= ADMIN LAYOUT ================= */
 .admin-layout {
   display: grid;
   grid-template-columns: 280px 320px 1fr;
   height: 100vh;
   background: #f8fafc;
+  padding-top: 90px; /* space for fixed selector */
 }
 
+/* ================= COURSE SELECTOR (FIXED CENTER) ================= */
 .course-selector {
-  grid-column: 1 / -1;
-  padding: 15px;
+  position: fixed;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+
+  padding: 14px 20px;
   background: white;
-  border-bottom: 1px solid #e5e7eb;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
 
+/* SELECT INPUT */
 .course-selector select {
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px 18px;
+  min-width: 280px;
+
+  border-radius: 10px;
+  border: 1px solid #c7d2fe;
+
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
 }
 
-/* MODULES */
+/* HOVER EFFECT */
+.course-selector select:hover {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* FOCUS EFFECT */
+.course-selector select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25);
+}
+
+/* ================= MODULES ================= */
 .admin-modules {
   padding: 20px;
 }
@@ -28,6 +62,12 @@
   border-radius: 12px;
   margin-bottom: 12px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-module-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
 }
 
 .admin-module-card.active {
@@ -35,7 +75,7 @@
   color: white;
 }
 
-/* VIDEOS */
+/* ================= VIDEOS ================= */
 .admin-videos {
   background: white;
   padding: 20px;
@@ -44,21 +84,35 @@
 .admin-video-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+
   background: #f1f5f9;
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 10px;
+
+  transition: all 0.2s ease;
+}
+
+.admin-video-row:hover {
+  background: #e0e7ff;
 }
 
 .admin-video-row button {
   background: #ef4444;
   color: white;
   border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* UPLOAD */
+.admin-video-row button:hover {
+  background: #dc2626;
+}
+
+/* ================= UPLOAD ================= */
 .admin-upload {
   padding: 20px;
 }
@@ -79,4 +133,23 @@
   color: white;
   border: none;
   border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.admin-upload button:hover {
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.4);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+    padding-top: 85px;
+  }
+
+  .course-selector select {
+    min-width: 220px;
+  }
 }
