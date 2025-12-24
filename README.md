@@ -1,4 +1,4 @@
-📚 PR Skillverse – Commercial LMS Platform
+📚 PR Skill Verse – Online Learning Platform (LMS)
 
 A full-stack Learning Management System (LMS) built with React + Firebase, designed for paid batch-based courses, admin video management, and secure student access.
 
